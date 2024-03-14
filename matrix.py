@@ -76,7 +76,3 @@ ppl, appts = generarPoblacion(tamaño_poblacion)
 x = seleccionarPadres(ppl, appts, porcentaje_padres)
 
 print(x)
-
-#    temp = list(split_lst[2])
-#    temp.append(aptitudes[-1])
-#    split_lst[2] = tuple(temp)
