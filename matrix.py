@@ -116,32 +116,63 @@ def mutateBoard(solution):
 
 # Inicializar población
 ppl, appts = generarPoblacion(tamaño_poblacion)
+best_fitness = []
+best_average = []
 
-# Cruzar padres y reparar hijos
-ppdrs = seleccionarPadres(ppl, appts, porcentaje_padres)
-hhjs = []    
-no_cruzadores = int((len(ppdrs*porcentaje_cruza)/100))
-if ((no_cruzadores % 2) != 0):
-    no_cruzadores+=1
-pares = list(range(0, no_cruzadores, 2))
-for i in pares:
-    hijo1, hijo2 = operadorCruza(ppdrs[i], ppdrs[i+1])
-    hijo1 = repairBoard(hijo1)
-    hijo2 = repairBoard(hijo2)
-    hhjs.append(hijo1)
-    hhjs.append(hijo2)
+for _ in range(300):
+    # Cruzar padres y reparar hijos
+    ppdrs = seleccionarPadres(ppl, appts, porcentaje_padres)
+    hhjs = []    
+    no_cruzadores = int((len(ppdrs*porcentaje_cruza)/100))
+    if ((no_cruzadores % 2) != 0):
+        no_cruzadores+=1
+    pares = list(range(0, no_cruzadores, 2))
+    for i in pares:
+        hijo1, hijo2 = operadorCruza(ppdrs[i], ppdrs[i+1])
+        hijo1 = repairBoard(hijo1)
+        hijo2 = repairBoard(hijo2)
+        hhjs.append(hijo1)
+        hhjs.append(hijo2)
 
-# Mutar hijos
-no_mutados = int((len(hhjs*porcentaje_mutacion)/100))
-for i in range(no_mutados):
-    hhjs[i] = mutateBoard(hhjs[i])
+    # Mutar hijos
+    no_mutados = int((len(hhjs*porcentaje_mutacion)/100))
+    for i in range(no_mutados):
+        hhjs[i] = mutateBoard(hhjs[i])
 
-# Actualizar población
-ppl = ppl + hhjs
-nuevas_apptitudes = []
-for index in range(len(ppl)):
-        aptitud = calcularAptitud(ppl[index])
-        nuevas_apptitudes.append((index,aptitud))
-nuevas_apptitudes.sort(key=lambda a: a[1])
-nuevas_apptitudes = nuevas_apptitudes[:tamaño_poblacion] 
-print(nuevas_apptitudes)
+    # Actualizar población
+    ppl = ppl + hhjs
+    nuevas_apptitudes = []
+    nueva_poblacion = []
+    for index in range(len(ppl)):
+            aptitud = calcularAptitud(ppl[index])
+            nuevas_apptitudes.append((index,aptitud))
+    nuevas_apptitudes.sort(key=lambda a: a[1])
+    appts = nuevas_apptitudes[:tamaño_poblacion] 
+
+    for i in appts:
+        nueva_poblacion.append(ppl[i[0]])
+    ppl = nueva_poblacion
+
+    nuevas_apptitudes.clear()
+    average_fit = 0
+    for index in range(len(ppl)):
+            aptitud = calcularAptitud(ppl[index])
+            average_fit += aptitud
+            nuevas_apptitudes.append((index,aptitud))
+    appts = nuevas_apptitudes
+    average_fit = average_fit/tamaño_poblacion
+    best_fitness.append(appts[0][1])
+    best_average.append(average_fit)
+    #print(appts)
+    #print(len(ppl))
+    # Iterar sobre appts para quedarme con las primeras N soluciones de ppl
+print(ppl[0])
+print(appts[0])
+
+plt.plot(best_fitness, label='Best')
+plt.plot(best_average, label='Average')
+
+plt.xlabel("Evaluations")
+plt.ylabel("Fitness")
+plt.legend() 
+plt.show()
